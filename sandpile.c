@@ -82,9 +82,10 @@ static void stabilize() {
     changed = 0;
     #pragma omp parallel for
     for (int i = 0; i < N; ++i) {
+      const int n_div = N/2;
       for (int j = 0; j <= MAX(i, N - 1 - i); ++j) {
-        if ((i - N / 2) * (i - N / 2) + (j - N / 2) * (j - N / 2) <=
-            (N / 2) * (N / 2)) {
+        if ((i - n_div) * (i - n_div) + (j - n_div) * (j - n_div) <=
+            (n_div) * (n_div)) {
           if (grid[i][j] < 4)
             continue;
           changed = 1; // topple it
