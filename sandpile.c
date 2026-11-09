@@ -21,6 +21,10 @@ static void die(const char *s) {
 int N = 801;
 int **grid;
 
+float tdiff(struct timeval *start, struct timeval *end){
+  return (end->tv_sec - start->tv_sec) + 1e-6 * (end->tv_usec - start->tv_usec);
+}
+
 // you can also use this function to debug print your sandpile
 static void render(char *filename) {
   int chan = 3;
@@ -76,6 +80,7 @@ static void stabilize() {
   int changed = 0;
   do {
     changed = 0;
+    #pragma omp parallel for
     for (int i = 0; i < N; ++i) {
       for (int j = 0; j <= MAX(i, N - 1 - i); ++j) {
         if ((i - N / 2) * (i - N / 2) + (j - N / 2) * (j - N / 2) <=
@@ -114,6 +119,9 @@ void find_identity() {
 }
 
 int main(int argc, char **argv) {
+  struct timeval t_start,t_end;
+  gettimeofday(&t_start,NULL);
+
   if (argc < 2 || argc > 2) {
     fprintf(stderr, "Usage: %s N\n", argv[0]);
     return EXIT_FAILURE;
@@ -133,9 +141,13 @@ int main(int argc, char **argv) {
   find_identity();
 
   render("identity.png");
+  gettimeofday(&t_end,NULL);
+  printf("Total time to render=%0.3f seconds\n", tdiff(&t_start,&t_end));
   for (int i = 0; i < N; ++i) {
     free(grid[i]);
   }
+
   free(grid);
+
   return EXIT_SUCCESS;
 }
