@@ -80,24 +80,26 @@ static void stabilize() {
   int changed = 0;
   do {
     changed = 0;
-    #pragma omp parallel for
-    for (int i = 0; i < N; ++i) {
-      const int n_div = N/2;
-      for (int j = 0; j <= MAX(i, N - 1 - i); ++j) {
-        if ((i - n_div) * (i - n_div) + (j - n_div) * (j - n_div) <=
-            (n_div) * (n_div)) {
-          if (grid[i][j] < 4)
-            continue;
-          changed = 1; // topple it
-          grid[i][j] -= 4;
-          if (i > 0)
-            grid[i - 1][j]++;
-          if (j > 0)
-            grid[i][j - 1]++;
-          if (i < N - 1)
-            grid[i + 1][j]++;
-          if (j < N - 1)
-            grid[i][j + 1]++;
+    for (int z = 0; z < 3; ++z){
+      #pragma omp parallel for
+      for (int i = z; i < N; i+=3) {
+        const int n_div = N/2;
+        for (int j = 0; j <= MAX(i, N - 1 - i); ++j) {
+          if ((i - n_div) * (i - n_div) + (j - n_div) * (j - n_div) <=
+              (n_div) * (n_div)) {
+            if (grid[i][j] < 4)
+              continue;
+            changed = 1; // topple it
+            grid[i][j] -= 4;
+            if (i > 0)
+              grid[i - 1][j]++;
+            if (j > 0)
+              grid[i][j - 1]++;
+            if (i < N - 1)
+              grid[i + 1][j]++;
+            if (j < N - 1)
+              grid[i][j + 1]++;
+          }
         }
       }
     }
